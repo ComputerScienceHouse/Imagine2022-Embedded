@@ -5,4 +5,7 @@ typedef struct {
     int rssi;
 } bluetooth_frame;
 
-void func(void);
+bluetooth_frame* new_frame();
+int calc_len(bluetooth_frame* frame);
+char* format_data(char* str, bluetooth_frame* frame);
+
