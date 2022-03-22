@@ -25,6 +25,7 @@ void app_main(void)
     }
     ESP_ERROR_CHECK( ret );
 
+
     // comment out password define in config file to disable wifi connection attempt
     #ifdef WIFI_PASS
     	ESP_LOGI(WIFI_TAG, "Connecting...");
@@ -39,6 +40,7 @@ void app_main(void)
     ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
 
     esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
+
     if ((ret = esp_bt_controller_init(&bt_cfg)) != ESP_OK) {
         ESP_LOGE(BT_TAG, "%s initialize controller failed: %s\n", __func__, esp_err_to_name(ret));
         return;
@@ -65,7 +67,7 @@ void app_main(void)
     {
 	    ESP_LOGE(WIFI_TAG, "Could not start UDP socket");
     }
-    // esp_bt_dev_set_device_name
+
 
     get_wifi_mac_str(wifi_mac_str);
     ESP_LOGI(WIFI_TAG," mac: %s",  wifi_mac_str);

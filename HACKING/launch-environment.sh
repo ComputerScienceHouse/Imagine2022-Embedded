@@ -1,5 +1,5 @@
 #!/bin/bash
-IMAGINE_DIR=/home/thegreenone/Documents/imagine2022-embedded
+IMAGINE_DIR=/home/$USER/Documents/imagine2022-embedded
 mkdir -p "$IMAGINE_DIR"
 podman run --rm -it                             \
     --name=imagine-embedded-dev                 \
