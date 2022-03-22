@@ -85,7 +85,7 @@ void get_wifi_mac_str(char* str)
 {
     uint8_t mac[6];
     esp_efuse_mac_get_default(mac);
-    //return byte_mac_to_str(str, mac);
+    byte_mac_to_str(str, mac);
     return;
 }
 
