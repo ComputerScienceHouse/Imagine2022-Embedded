@@ -6,13 +6,14 @@
    software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
    CONDITIONS OF ANY KIND, either express or implied.
 */
+#include <string.h>
 #include "esp_wifi.h"
 #include "esp_netif.h"
 #include "esp_log.h"
-#include <string.h>
 #include "esp_mesh.h"
 #include "lwip/lwip_napt.h"
 #include "esp_wifi_netif.h"
+
 #include "mesh_netif.h"
 
 /*******************************************************

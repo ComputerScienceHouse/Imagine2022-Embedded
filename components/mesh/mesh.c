@@ -6,6 +6,7 @@
    software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
    CONDITIONS OF ANY KIND, either express or implied.
 */
+
 #include <string.h>
 #include "esp_wifi.h"
 #include "esp_system.h"
@@ -13,62 +14,16 @@
 #include "esp_log.h"
 #include "esp_mesh.h"
 #include "nvs_flash.h"
-#include "mesh_netif.h"
 #include "driver/gpio.h"
 #include "freertos/semphr.h"
+
+#include "mesh_netif.h"
 #include "udp.h"
-
-/*******************************************************
- *                Macros
- *******************************************************/
-#define EXAMPLE_BUTTON_GPIO     0
-
-// commands for internal mesh communication:
-// <CMD> <PAYLOAD>, where CMD is one character, payload is variable dep. on command
-#define CMD_KEYPRESSED 0x55
-// CMD_KEYPRESSED: payload is always 6 bytes identifying address of node sending keypress event
-#define CMD_ROUTE_TABLE 0x56
-// CMD_KEYPRESSED: payload is a multiple of 6 listing addresses in a routing table
-/*******************************************************
- *                Constants
- *******************************************************/
-static const char *MESH_TAG = "mesh_main";
-static const uint8_t MESH_ID[6] = { 0x77, 0x77, 0x77, 0x77, 0x77, 0x76};
-
-/*******************************************************
- *                Variable Definitions
- *******************************************************/
-static bool is_running = true;
-static mesh_addr_t mesh_parent_addr;
-static int mesh_layer = -1;
-static esp_ip4_addr_t s_current_ip;
-static mesh_addr_t s_route_table[CONFIG_MESH_ROUTE_TABLE_SIZE];
-static int s_route_table_size = 0;
-static SemaphoreHandle_t s_route_table_lock = NULL;
-static uint8_t s_mesh_tx_payload[CONFIG_MESH_ROUTE_TABLE_SIZE*6+1];
-
-
-/*******************************************************
- *                Function Declarations
- *******************************************************/
-// interaction with public mqtt broker
-void mqtt_app_start(void);
-void mqtt_app_publish(char* topic, char *publish_string);
+#include "mesh.h"
 
 /*******************************************************
  *                Function Definitions
  *******************************************************/
-
-static void initialise_button(void)
-{
-    gpio_config_t io_conf = {0};
-    io_conf.intr_type = GPIO_INTR_DISABLE;
-    io_conf.pin_bit_mask = BIT64(EXAMPLE_BUTTON_GPIO);
-    io_conf.mode = GPIO_MODE_INPUT;
-    io_conf.pull_up_en = 1;
-    io_conf.pull_down_en = 0;
-    gpio_config(&io_conf);
-}
 
 void static recv_cb(mesh_addr_t *from, mesh_data_t *data)
 {
@@ -96,95 +51,6 @@ void static recv_cb(mesh_addr_t *from, mesh_data_t *data)
     } else {
         ESP_LOGE(MESH_TAG, "Error in receiving raw mesh data: Unknown command");
     }
-}
-
-static void check_button(void* args)
-{
-    static bool old_level = true;
-    bool new_level;
-    bool run_check_button = true;
-    initialise_button();
-    while (run_check_button) {
-        new_level = gpio_get_level(EXAMPLE_BUTTON_GPIO);
-        if (!new_level && old_level) {
-            if (s_route_table_size && !esp_mesh_is_root()) {
-                ESP_LOGW(MESH_TAG, "Key pressed!");
-                mesh_data_t data;
-                uint8_t *my_mac = mesh_netif_get_station_mac();
-                uint8_t data_to_send[6+1] = { CMD_KEYPRESSED, };
-                esp_err_t err;
-                char print[6*3+1]; // MAC addr size + terminator
-                memcpy(data_to_send + 1, my_mac, 6);
-                data.size = 7;
-                data.proto = MESH_PROTO_BIN;
-                data.tos = MESH_TOS_P2P;
-                data.data = data_to_send;
-                snprintf(print, sizeof(print),MACSTR, MAC2STR(my_mac));
-                mqtt_app_publish("/topic/ip_mesh/key_pressed", print);
-                xSemaphoreTake(s_route_table_lock, portMAX_DELAY);
-                for (int i = 0; i < s_route_table_size; i++) {
-                    if (MAC_ADDR_EQUAL(s_route_table[i].addr, my_mac)) {
-                        continue;
-                    }
-                    err = esp_mesh_send(&s_route_table[i], &data, MESH_DATA_P2P, NULL, 0);
-                    ESP_LOGI(MESH_TAG, "Sending to [%d] "
-                            MACSTR ": sent with err code: %d", i, MAC2STR(s_route_table[i].addr), err);
-                }
-                xSemaphoreGive(s_route_table_lock);
-            }
-        }
-        old_level = new_level;
-        vTaskDelay(50 / portTICK_PERIOD_MS);
-    }
-    vTaskDelete(NULL);
-
-}
-
-
-void esp_mesh_mqtt_task(void *arg)
-{
-    is_running = true;
-    char *print;
-    mesh_data_t data;
-    esp_err_t err;
-    mqtt_app_start();
-    while (is_running) {
-        asprintf(&print, "layer:%d IP:" IPSTR, esp_mesh_get_layer(), IP2STR(&s_current_ip));
-        ESP_LOGI(MESH_TAG, "Tried to publish %s", print);
-        mqtt_app_publish("/topic/ip_mesh", print);
-        free(print);
-        if (esp_mesh_is_root()) {
-            esp_mesh_get_routing_table((mesh_addr_t *) &s_route_table,
-                                       CONFIG_MESH_ROUTE_TABLE_SIZE * 6, &s_route_table_size);
-            data.size = s_route_table_size * 6 + 1;
-            data.proto = MESH_PROTO_BIN;
-            data.tos = MESH_TOS_P2P;
-            s_mesh_tx_payload[0] = CMD_ROUTE_TABLE;
-            memcpy(s_mesh_tx_payload + 1, s_route_table, s_route_table_size*6);
-            data.data = s_mesh_tx_payload;
-            for (int i = 0; i < s_route_table_size; i++) {
-                err = esp_mesh_send(&s_route_table[i], &data, MESH_DATA_P2P, NULL, 0);
-                ESP_LOGI(MESH_TAG, "Sending routing table to [%d] "
-                        MACSTR ": sent with err code: %d", i, MAC2STR(s_route_table[i].addr), err);
-            }
-        }
-        vTaskDelay(2 * 1000 / portTICK_RATE_MS);
-    }
-    vTaskDelete(NULL);
-}
-
-esp_err_t esp_mesh_comm_mqtt_task_start(void)
-{
-    static bool is_comm_mqtt_task_started = false;
-
-    s_route_table_lock = xSemaphoreCreateMutex();
-
-    if (!is_comm_mqtt_task_started) {
-        xTaskCreate(esp_mesh_mqtt_task, "mqtt task", 3072, NULL, 5, NULL);
-        xTaskCreate(check_button, "check button task", 3072, NULL, 5, NULL);
-        is_comm_mqtt_task_started = true;
-    }
-    return ESP_OK;
 }
 
 void mesh_event_handler(void *arg, esp_event_base_t event_base,
@@ -382,7 +248,7 @@ void ip_event_handler(void *arg, esp_event_base_t event_base,
 }
 
 
-void app_main(void)
+void start_mesh(void)
 {
     ESP_ERROR_CHECK(nvs_flash_init());
     /*  tcpip initialization */
