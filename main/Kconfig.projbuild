@@ -1,5 +1,5 @@
 # put here your custom config value
-menu "Example Configuration"
+menu "CSHA Wifi"
 config ESP_WIFI_SSID
     string "WiFi SSID"
     default "myssid"

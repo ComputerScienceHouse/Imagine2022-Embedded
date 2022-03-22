@@ -31,7 +31,7 @@ void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id
                 }
                 s_retry_num = 0;
             } else {
-                ESP_LOGI(WIFI_TAG, "Failed to connect!");
+                ESP_LOGE(WIFI_TAG, "Failed to connect!");
             }
             break;
 

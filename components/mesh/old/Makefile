@@ -3,6 +3,6 @@
 # project subdirectory.
 #
 
-PROJECT_NAME := internal_communication
+PROJECT_NAME := ip_internal_network
 
 include $(IDF_PATH)/make/project.mk
