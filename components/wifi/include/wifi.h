@@ -1,9 +1,9 @@
 #ifndef _WIFI_H_
 #define _WIFI_H_
 
-#include "freertos/FreeRTOS.h"
-#include "freertos/event_groups.h"
-#include "esp_wifi.h"
+//#include "freertos/FreeRTOS.h"
+//#include "freertos/event_groups.h"
+//#include "esp_wifi.h"
 #include "esp_log.h"
 //#include "esp_wps.h"
 #include "esp_event.h"
@@ -21,25 +21,25 @@
 #define WIFI_MAX_RETRY_ATTEMPTS 2
 
 static char wifi_mac_str[17];
-static struct tm timeinfo = { 0 };
+//static struct tm timeinfo = { 0 };
 static bool sntp_setup = false;
 
 /*
 * callback on wifi state change
 * automatically handles connections
 */
-void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data);
+//void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data);
 
 /*
 * callback on successfully acquiring ip from network
 * retries connection WIFI_MAX_RETRY_ATTEMPTS times
 */
-void got_ip_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data);
+//void got_ip_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data);
 
 /*
 * start wifi process and connect to network with given ssid and password
 */
-void start_wifi(char* wifi_ssid, char* wifi_pass);
+//void start_wifi(char* wifi_ssid, char* wifi_pass);
 
 /*
 * converts 6 byte mac address to string representation and stores it in str

@@ -15,7 +15,7 @@
 #include "esp_event.h"
 #include "esp_log.h"
 #include "esp_mesh.h"
-#include "nvs_flash.h"
+//#include "nvs_flash.h"
 #include "driver/gpio.h"
 #include "freertos/semphr.h"
 
