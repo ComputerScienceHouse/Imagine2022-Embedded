@@ -8,7 +8,8 @@
 
 #include "bluetooth.h"
 #include "udp.h"
-#include "wifi.h"
+//#include "wifi.h"
+#include "mesh.h"
 #include "config.h"
 
 void app_main(void)
@@ -22,13 +23,20 @@ void app_main(void)
     ESP_ERROR_CHECK( ret );
 
     // comment out password define in config file to disable wifi connection attempt
-    #ifdef WIFI_PASS
+    /*
+     #ifdef WIFI_PASS
         char* wifi_ssid = WIFI_SSID;
         char* wifi_pass = WIFI_PASS;
         start_wifi(wifi_ssid, wifi_pass);
         init_udp_socket(DESTINATION_ADDRESS, DESTINATION_PORT);
         sntp_update_time();
     #endif
+    */
+
+    ESP_LOGI(CSHA_TAG, "Initializing mesh...");
+    start_mesh(); //Initialize the mesh network. Hopefully this will provide connection to everything.
+    init_udp_socket(DESTINATION_ADDRESS, DESTINATION_PORT);
+    sntp_update_time();
     
     ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_BLE));
 
@@ -71,6 +79,6 @@ void app_main(void)
     ESP_LOGI(TIME_TAG, "now : %d", (int)now);
 
     bt_app_gap_start_up();
-    ESP_LOGI("LIGMA", "Done!");
+    ESP_LOGI(CSHA_TAG, "Ready.");
 }
 

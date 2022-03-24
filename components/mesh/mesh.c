@@ -6,20 +6,25 @@
    software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
    CONDITIONS OF ANY KIND, either express or implied.
 */
-
-#include <string.h>
-#include "esp_wifi.h"
-#include "esp_system.h"
-#include "esp_event.h"
-#include "esp_log.h"
-#include "esp_mesh.h"
-#include "nvs_flash.h"
-#include "driver/gpio.h"
-#include "freertos/semphr.h"
-
-#include "mesh_netif.h"
-#include "udp.h"
 #include "mesh.h"
+
+/*******************************************************
+ *                Constants
+ *******************************************************/
+static const char *MESH_TAG = "CSHA_MESH";
+static const uint8_t MESH_ID[6] = { 0x43, 0x53, 0x48, 0x41, 0x43, 0x4B}; // CSHACK
+
+/*******************************************************
+ *                Variable Definitions
+ *******************************************************/
+//static bool is_running = true;
+static mesh_addr_t mesh_parent_addr;
+static int mesh_layer = -1;
+static esp_ip4_addr_t s_current_ip;
+static mesh_addr_t s_route_table[CONFIG_MESH_ROUTE_TABLE_SIZE];
+static int s_route_table_size = 0;
+static SemaphoreHandle_t s_route_table_lock = NULL;
+static uint8_t s_mesh_tx_payload[CONFIG_MESH_ROUTE_TABLE_SIZE*6+1];
 
 /*******************************************************
  *                Function Definitions
@@ -247,10 +252,9 @@ void ip_event_handler(void *arg, esp_event_base_t event_base,
     //esp_mesh_comm_mqtt_task_start();
 }
 
-
 void start_mesh(void)
 {
-    ESP_ERROR_CHECK(nvs_flash_init());
+    //ESP_ERROR_CHECK(nvs_flash_init());
     /*  tcpip initialization */
     ESP_ERROR_CHECK(esp_netif_init());
     /*  event initialization */
@@ -293,6 +297,7 @@ void start_mesh(void)
              esp_mesh_is_root_fixed() ? "root fixed" : "root not fixed");
 
     // Start up a UDP socket. 
+    /*
     init_udp_socket("129.21.50.27", 6666);
     vTaskDelay(5000 / portTICK_PERIOD_MS);
     if (!socket_ready())
@@ -308,4 +313,5 @@ void start_mesh(void)
         }
         vTaskDelay(5000 / portTICK_PERIOD_MS);
     }
+    */
 }

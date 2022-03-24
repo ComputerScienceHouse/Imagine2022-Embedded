@@ -6,7 +6,21 @@
    software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
    CONDITIONS OF ANY KIND, either express or implied.
 */
-#pragma once
+#ifndef _MESH_H_
+#define _MESH_H_
+
+#include <string.h>
+#include "esp_wifi.h"
+#include "esp_system.h"
+#include "esp_event.h"
+#include "esp_log.h"
+#include "esp_mesh.h"
+#include "nvs_flash.h"
+#include "driver/gpio.h"
+#include "freertos/semphr.h"
+
+#include "mesh_netif.h"
+#include "udp.h"
 
 /*******************************************************
  *                Macros
@@ -21,24 +35,6 @@
 // CMD_KEYPRESSED: payload is a multiple of 6 listing addresses in a routing table
 
 /*******************************************************
- *                Constants
- *******************************************************/
-static const char *MESH_TAG = "CSHA_MESH";
-static const uint8_t MESH_ID[6] = { 0x43, 0x53, 0x48, 0x41, 0x43, 0x4B}; // CSHACK
-
-/*******************************************************
- *                Variable Definitions
- *******************************************************/
-static bool is_running = true;
-static mesh_addr_t mesh_parent_addr;
-static int mesh_layer = -1;
-static esp_ip4_addr_t s_current_ip;
-static mesh_addr_t s_route_table[CONFIG_MESH_ROUTE_TABLE_SIZE];
-static int s_route_table_size = 0;
-static SemaphoreHandle_t s_route_table_lock = NULL;
-static uint8_t s_mesh_tx_payload[CONFIG_MESH_ROUTE_TABLE_SIZE*6+1];
-
-/*******************************************************
  *                Function Definitions
  *******************************************************/
 
@@ -51,4 +47,4 @@ void ip_event_handler(void *arg, esp_event_base_t event_base,
                       int32_t event_id, void *event_data);
 
 void start_mesh(void);
-
+#endif

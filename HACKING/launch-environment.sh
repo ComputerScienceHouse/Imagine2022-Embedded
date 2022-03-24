@@ -4,6 +4,8 @@ mkdir -p "$IMAGINE_DIR"
 podman run --rm -it                             \
     --name=imaginerit-embedded-dev              \
     -v "$IMAGINE_DIR":/ImagineRIT2022           \
+    --device=/dev/ttyUSB0:/dev/ttyUSB0:rwm      \
+    --device=/dev/ttyUSB1:/dev/ttyUSB1:rwm      \
     --group-add keep-groups                     \
     --annotation io.crun.keep_original_groups=1 \
     imaginerit-embedded-dev
