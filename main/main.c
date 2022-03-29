@@ -33,11 +33,7 @@ void app_main(void)
     #endif
     */
 
-    ESP_LOGI(CSHA_TAG, "Initializing mesh...");
-    start_mesh(); //Initialize the mesh network. Hopefully this will provide connection to everything.
-    init_udp_socket(DESTINATION_ADDRESS, DESTINATION_PORT);
-    sntp_update_time();
-    
+    ESP_LOGI(CSHA_TAG, "Setting BLE mode...");
     ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_BLE));
 
     esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
@@ -63,6 +59,12 @@ void app_main(void)
         ESP_LOGE(CSHA_TAG, "%s enable bluedroid failed: %s\n", __func__, esp_err_to_name(ret));
         return;
     }
+
+    ESP_LOGI(CSHA_TAG, "Initializing mesh...");
+    start_mesh(); //Initialize the mesh network. Hopefully this will provide connection to everything.
+    init_udp_socket(DESTINATION_ADDRESS, DESTINATION_PORT);
+    sntp_update_time();
+
     if (!socket_ready())
     {
 	    ESP_LOGE(CSHA_TAG, "Could not start UDP socket");

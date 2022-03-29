@@ -9,4 +9,5 @@ podman run --rm -it                             \
     --annotation io.crun.keep_original_groups=1 \
     imaginerit-embedded-dev
 #podman exec -it imaginerit-embedded-dev bash
-# To add device use: --device=/dev/ttyUSB1:/dev/ttyUSB1:rwm      \
+
+# To add device use:    --device=/dev/ttyUSB0:/dev/ttyUSB0:rwm      \
