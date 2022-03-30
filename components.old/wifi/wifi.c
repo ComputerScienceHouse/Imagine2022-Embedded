@@ -110,6 +110,7 @@ void init_sntp(void)
     sntp_init();
     sntp_setup = true;
 }
+
 bool sntp_update_time(void)
 {
     init_sntp();

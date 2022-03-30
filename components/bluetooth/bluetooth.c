@@ -1,6 +1,6 @@
 #include "bluetooth.h"
 
-static char identifier_mac[17];
+static char identifier_mac[18];
 
 char *bda2str(esp_bd_addr_t bda, char *str, size_t size)
 {

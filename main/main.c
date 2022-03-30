@@ -8,9 +8,9 @@
 
 #include "bluetooth.h"
 #include "udp.h"
-//#include "wifi.h"
 #include "mesh.h"
 #include "config.h"
+#include "network.h"
 
 void app_main(void)
 {
@@ -21,17 +21,6 @@ void app_main(void)
         ret = nvs_flash_init();
     }
     ESP_ERROR_CHECK( ret );
-
-    // comment out password define in config file to disable wifi connection attempt
-    /*
-     #ifdef WIFI_PASS
-        char* wifi_ssid = WIFI_SSID;
-        char* wifi_pass = WIFI_PASS;
-        start_wifi(wifi_ssid, wifi_pass);
-        init_udp_socket(DESTINATION_ADDRESS, DESTINATION_PORT);
-        sntp_update_time();
-    #endif
-    */
 
     ESP_LOGI(CSHA_TAG, "Setting BLE mode...");
     ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_BLE));
@@ -60,22 +49,18 @@ void app_main(void)
         return;
     }
 
-    ESP_LOGI(CSHA_TAG, "Initializing mesh...");
-    start_mesh(); //Initialize the mesh network. Hopefully this will provide connection to everything.
+    start_mesh();
     init_udp_socket(DESTINATION_ADDRESS, DESTINATION_PORT);
-    sntp_update_time();
+    sntp_update_time(); // Wait. How the fuck is this functioning?
 
     if (!socket_ready())
-    {
 	    ESP_LOGE(CSHA_TAG, "Could not start UDP socket");
-    }
 
     get_wifi_mac_str(wifi_mac_str);
-    ESP_LOGI(WIFI_TAG," mac: %s",  wifi_mac_str);
+    ESP_LOGI(WIFI_TAG,"ESP MAC Address: %s",  wifi_mac_str);
 
+    // time will only be accurate if SNTP sync was successful (requires mesh for now)
     time_t now = 0;
-
-    // time will only be accurate if SNTP sync was successful (requires wifi for now)
     time(&now);
 
     ESP_LOGI(TIME_TAG, "now : %d", (int)now);

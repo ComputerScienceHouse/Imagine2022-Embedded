@@ -46,13 +46,6 @@ void static recv_cb(mesh_addr_t *from, mesh_data_t *data)
         }
         memcpy(&s_route_table, data->data + 1, size);
         xSemaphoreGive(s_route_table_lock);
-    } else if (data->data[0] == CMD_KEYPRESSED) {
-        if (data->size != 7) {
-            ESP_LOGE(MESH_TAG, "Error in receiving raw mesh data: Unexpected size");
-            return;
-        }
-        ESP_LOGW(MESH_TAG, "Keypressed detected on node: "
-                MACSTR, MAC2STR(data->data + 1));
     } else {
         ESP_LOGE(MESH_TAG, "Error in receiving raw mesh data: Unknown command");
     }
@@ -249,12 +242,10 @@ void ip_event_handler(void *arg, esp_event_base_t event_base,
     ESP_ERROR_CHECK(esp_netif_get_dns_info(netif, ESP_NETIF_DNS_MAIN, &dns));
     mesh_netif_start_root_ap(esp_mesh_is_root(), dns.ip.u_addr.ip4.addr);
 #endif
-    //esp_mesh_comm_mqtt_task_start();
 }
 
 void start_mesh(void)
 {
-    //ESP_ERROR_CHECK(nvs_flash_init());
     /*  tcpip initialization */
     ESP_ERROR_CHECK(esp_netif_init());
     /*  event initialization */
@@ -273,14 +264,15 @@ void start_mesh(void)
     // set min wifi sleep for nodes
     ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_MIN_MODEM));
     ESP_ERROR_CHECK(esp_wifi_start());
+
     /*  mesh initialization */
     ESP_ERROR_CHECK(esp_mesh_init());
     ESP_ERROR_CHECK(esp_event_handler_register(MESH_EVENT, ESP_EVENT_ANY_ID, &mesh_event_handler, NULL));
     ESP_ERROR_CHECK(esp_mesh_set_max_layer(CONFIG_MESH_MAX_LAYER));
     ESP_ERROR_CHECK(esp_mesh_set_vote_percentage(1));
 
-    // Adjusted params because the french man said so
-    //ESP_ERROR_CHECK(esp_mesh_set_ap_assoc_expire(10));
+    /* Adjusted params because the french man said so
+       We might be able to set these back. */
     ESP_ERROR_CHECK(esp_mesh_set_ap_assoc_expire(60));
     ESP_ERROR_CHECK(esp_mesh_set_announce_interval(600, 3300));
 
@@ -304,23 +296,4 @@ void start_mesh(void)
     ESP_ERROR_CHECK(esp_mesh_start());
     ESP_LOGI(MESH_TAG, "mesh starts successfully, heap:%d, %s\n",  esp_get_free_heap_size(),
              esp_mesh_is_root_fixed() ? "root fixed" : "root not fixed");
-
-    // Start up a UDP socket. 
-    /*
-    init_udp_socket("129.21.50.27", 6666);
-    vTaskDelay(5000 / portTICK_PERIOD_MS);
-    if (!socket_ready())
-    {
-	    ESP_LOGE("LIGMA", "Could not start UDP socket");
-    } else {
-	    ESP_LOGI("LIGMA", "UDP socket is ready");
-    }
-    while (true) {
-        if (esp_mesh_get_type() !=  MESH_ROOT) {
-            udp_send_str("chom", 508);
-            ESP_LOGI("LIGMA", "UDP message sent");
-        }
-        vTaskDelay(5000 / portTICK_PERIOD_MS);
-    }
-    */
 }
