@@ -54,7 +54,7 @@ void app_main(void)
     }
 
     start_mesh();
-    init_udp_socket(DESTINATION_ADDRESS, DESTINATION_PORT);
+    init_udp_socket(CONFIG_UDP_DEST_ADDRESS, CONFIG_UDP_DEST_PORT);
     sntp_update_time(); // Wait. How the fuck is this functioning?
 
     if (!socket_ready())
