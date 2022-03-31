@@ -1,22 +1,14 @@
 #include "network.h"
 #include <stdint.h>
 
-char* byte_mac_to_str(char* str, uint8_t* mac)
-{
-    //17 char long
-    sprintf(str, "%02X:%02X:%02X:%02X:%02X:%02X", mac[0],mac[1],mac[2],mac[3],mac[4],mac[5]);
-    return str;
-}
+extern char wifi_mac_str[18];
 
-char* get_wifi_mac_str(char* str)
+char* get_wifi_mac_str()
 {
     uint8_t mac[6];
-/*  esp_netif_t *my_netif = NULL;
-    my_netif = esp_netif_next(my_netif);
-    esp_netif_get_mac(my_netif, mac);*/
     esp_efuse_mac_get_default(mac);
-    snprintf(str, 18, "%02X:%02X:%02X:%02X:%02X:%02X", mac[0],mac[1],mac[2],mac[3],mac[4],mac[5]);
-    return str;
+    snprintf(wifi_mac_str, 18, "%02X:%02X:%02X:%02X:%02X:%02X", mac[0],mac[1],mac[2],mac[3],mac[4],mac[5]);
+    return wifi_mac_str;
 }
 
 // TODO: Aw fuck I have to fix this.

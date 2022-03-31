@@ -16,25 +16,16 @@
 #define SNTP_MAX_RETRY_COUNT 5
 #define WIFI_MAX_RETRY_ATTEMPTS 2
 
-static char wifi_mac_str[17];
 //static struct tm timeinfo = { 0 };
 static bool sntp_setup = false;
 
 /*
-* converts 6 byte mac address to string representation and stores it in str
-* str length must be at least 17
-* formatted as 00:00:00:00:00:00
-* returns pointer to str
-*/
-char* byte_mac_to_str(char* str, uint8_t* mac);
-
-/*
-* extracts the MAC out of the first interface and stores it in str
+* extracts ESP's default wifi MAC and stores it in str
 * str length be at least 17
 * formatted as 00:00:00:00:00:00
 * returns pointer to str
 */
-char* get_wifi_mac_str(char* str);
+char* get_wifi_mac_str();
 
 /*
 * returns whether wifi is currently connected

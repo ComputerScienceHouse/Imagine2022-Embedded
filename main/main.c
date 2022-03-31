@@ -12,6 +12,8 @@
 #include "config.h"
 #include "network.h"
 
+char wifi_mac_str[18] = {};
+
 void app_main(void)
 {
     /* Initialize NVS — it is used to store PHY calibration data */
@@ -56,7 +58,7 @@ void app_main(void)
     if (!socket_ready())
 	    ESP_LOGE(CSHA_TAG, "Could not start UDP socket");
 
-    get_wifi_mac_str(wifi_mac_str);
+    get_wifi_mac_str();
     ESP_LOGI(WIFI_TAG,"ESP MAC Address: %s",  wifi_mac_str);
 
     // time will only be accurate if SNTP sync was successful (requires mesh for now)
