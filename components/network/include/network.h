@@ -17,7 +17,6 @@
 #define WIFI_MAX_RETRY_ATTEMPTS 2
 
 //static struct tm timeinfo = { 0 };
-static bool sntp_setup = false;
 
 /*
 * extracts ESP's default wifi MAC and stores it in str
@@ -26,11 +25,6 @@ static bool sntp_setup = false;
 * returns pointer to str
 */
 char* get_wifi_mac_str();
-
-/*
-* returns whether wifi is currently connected
-*/
-bool wifi_connected(void);
 
 /*
 * callback on successful SNTP time sync

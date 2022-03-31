@@ -2,6 +2,8 @@
 #include <stdint.h>
 
 extern char wifi_mac_str[18];
+extern bool wifi_ready;
+extern bool sntp_ready;
 
 char* get_wifi_mac_str()
 {
@@ -9,13 +11,6 @@ char* get_wifi_mac_str()
     esp_efuse_mac_get_default(mac);
     snprintf(wifi_mac_str, 18, "%02X:%02X:%02X:%02X:%02X:%02X", mac[0],mac[1],mac[2],mac[3],mac[4],mac[5]);
     return wifi_mac_str;
-}
-
-// TODO: Aw fuck I have to fix this.
-bool wifi_connected(void)
-{
-    //return connected;
-    return true; // don't worry about it lol
 }
 
 void time_sync_notification_cb(struct timeval* tv)
@@ -29,7 +24,7 @@ void init_sntp(void)
     sntp_setservername(0, NTP_SERVER);
     sntp_set_time_sync_notification_cb(time_sync_notification_cb);
     sntp_init();
-    sntp_setup = true;
+    sntp_ready = true;
 }
 
 bool sntp_update_time(void)

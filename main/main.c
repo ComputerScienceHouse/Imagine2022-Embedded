@@ -13,6 +13,8 @@
 #include "network.h"
 
 char wifi_mac_str[18] = {};
+bool wifi_ready = false;
+bool sntp_ready = false;
 
 void app_main(void)
 {

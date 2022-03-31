@@ -1,6 +1,8 @@
 #include "bluetooth.h"
 
 extern char wifi_mac_str[18];
+extern bool wifi_ready;
+extern bool sntp_ready;
 
 char *bda2str(esp_bd_addr_t bda, char *str, size_t size)
 {
@@ -137,12 +139,12 @@ void update_device_info(esp_bt_gap_cb_param_t *param)
 
     time(&now);
 
-    ESP_LOGI(CSHA_TAG, "Found a target device, address %s, name %s, RSSI %d, TIMESTAMP %d", bda2str(param->disc_res.bda, bda_str, 18), p_dev->bdname, rssi, wifi_connected() ? (int) now : -1);
+    ESP_LOGI(CSHA_TAG, "Found a target device, address %s, name %s, RSSI %d, TIMESTAMP %d", bda2str(param->disc_res.bda, bda_str, 18), p_dev->bdname, rssi, wifi_ready ? (int) now : -1);
 
     int data_str_len = calc_len(now, &btpacket);
     char data_str[data_str_len];
 
-    if (wifi_connected())
+    if (wifi_ready && sntp_ready)
     {
         format_data(data_str, now, wifi_mac_str, &btpacket);
         ESP_LOGI(WIFI_TAG, "%d : %s", data_str_len, data_str);

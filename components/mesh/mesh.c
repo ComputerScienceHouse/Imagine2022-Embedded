@@ -26,6 +26,8 @@ static int s_route_table_size = 0;
 static SemaphoreHandle_t s_route_table_lock = NULL;
 //static uint8_t s_mesh_tx_payload[CONFIG_MESH_ROUTE_TABLE_SIZE*6+1];
 
+extern bool wifi_ready;
+
 /*******************************************************
  *                Function Definitions
  *******************************************************/
@@ -116,6 +118,7 @@ void mesh_event_handler(void *arg, esp_event_base_t event_base,
                  (mesh_layer == 2) ? "<layer2>" : "", MAC2STR(id.addr));
         last_layer = mesh_layer;
         mesh_netifs_start(esp_mesh_is_root());
+        wifi_ready = true; // If we have a parent node, we can probably access the internet.
     }
     break;
     case MESH_EVENT_PARENT_DISCONNECTED: {
@@ -125,6 +128,7 @@ void mesh_event_handler(void *arg, esp_event_base_t event_base,
                  disconnected->reason);
         mesh_layer = esp_mesh_get_layer();
         mesh_netifs_stop();
+        wifi_ready = false; // If we lose a parent node, well...
     }
     break;
     case MESH_EVENT_LAYER_CHANGE: {
