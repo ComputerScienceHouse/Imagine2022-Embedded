@@ -98,5 +98,7 @@ void ble_app_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param)
 /*
 * start BLE application with specified random address
 */
-void ble_app_gap_start_up(esp_bd_addr_t rand_addr);
+void ble_app_gap_start_up(void);
+
 #endif
+

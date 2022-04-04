@@ -87,8 +87,8 @@ void get_wifi_mac_str(char* str)
 {
     uint8_t mac[6];
     esp_efuse_mac_get_custom(mac);
-
-    if (memcmp(blank_mac, mac, 6) == 0) esp_efuse_mac_get_default(mac);
+    if (memcmp(blank_mac, mac, 2) == 0)
+    esp_efuse_mac_get_default(mac);
     byte_mac_to_str(str, mac);
     return;
 }

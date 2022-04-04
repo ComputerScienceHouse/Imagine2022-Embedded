@@ -20,7 +20,7 @@
 #define SNTP_MAX_RETRY_COUNT 5
 #define WIFI_MAX_RETRY_ATTEMPTS 2
 
-static char wifi_mac_str[17];
+static char wifi_mac_str[18];
 static struct tm timeinfo = { 0 };
 static bool sntp_setup = false;
 

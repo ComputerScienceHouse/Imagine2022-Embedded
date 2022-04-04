@@ -1,9 +1,13 @@
 #include "bluetooth.h"
 
+static const uint8_t blank_bda[6] = {
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
 static char identifier_mac[17];
 static esp_ble_scan_params_t ble_scan_params = {
     .scan_type              = BLE_SCAN_TYPE_ACTIVE,
     .own_addr_type          = BLE_ADDR_TYPE_PUBLIC,
+    // .own_addr_type          = BLE_ADDR_TYPE_RANDOM,
     .scan_filter_policy     = BLE_SCAN_FILTER_ALLOW_ALL, //BLE_SCAN_FILTER_ALLOW_ONLY_WLST,
     .scan_interval          = 0x30, // 0x320 * 0.625ms = 500ms  
     .scan_window            = 0x20,
@@ -266,88 +270,108 @@ void ble_app_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param)
     time(&now);
     switch (event)
     {
-        case ESP_GAP_BLE_SCAN_TIMEOUT_EVT:
-        case ESP_GAP_BLE_SCAN_PARAM_SET_COMPLETE_EVT:
-            esp_ble_gap_start_scanning(0);
-            break;
-        case ESP_GAP_BLE_SCAN_START_COMPLETE_EVT: 
-            if((err = param->scan_start_cmpl.status) != ESP_BT_STATUS_SUCCESS) 
+    case ESP_GAP_BLE_SCAN_TIMEOUT_EVT:
+    case ESP_GAP_BLE_SCAN_PARAM_SET_COMPLETE_EVT:
+        esp_ble_gap_start_scanning(0);
+        break;
+    case ESP_GAP_BLE_SCAN_START_COMPLETE_EVT: 
+        if((err = param->scan_start_cmpl.status) != ESP_BT_STATUS_SUCCESS) 
+        {
+            ESP_LOGE(BLE_TAG,"Scan start failed: %s", esp_err_to_name(err));
+        }
+        else 
+        {
+            ESP_LOGI(BLE_TAG,"Start scanning...");
+        }
+        break;
+    case ESP_GAP_BLE_SCAN_RESULT_EVT:
+        switch(param->scan_rst.ble_evt_type)
+        {
+        case ESP_BLE_EVT_NON_CONN_ADV:
+        case ESP_BLE_EVT_SCAN_RSP:
+        case ESP_BLE_EVT_CONN_ADV:
+        case ESP_BLE_EVT_CONN_DIR_ADV:
+        case ESP_BLE_EVT_DISC_ADV: {
+            adv_name = esp_ble_resolve_adv_data(param->scan_rst.ble_adv, ESP_BLE_AD_TYPE_NAME_CMPL, &adv_name_len);
+            if (adv_name == NULL) 
             {
-                ESP_LOGE(BLE_TAG,"Scan start failed: %s", esp_err_to_name(err));
+                //ESP_LOGE(BLE_TAG, "Could not resolve name");
+                adv_name = (uint8_t*) "";
+                adv_name_len = 0;
+                return;
             }
-            else 
-            {
-                ESP_LOGI(BLE_TAG,"Start scanning...");
-            }
-            break;
-        case ESP_GAP_BLE_SCAN_RESULT_EVT:
-            switch(param->scan_rst.ble_evt_type)
-            {
-            case ESP_BLE_EVT_NON_CONN_ADV:
-            case ESP_BLE_EVT_SCAN_RSP:
-            case ESP_BLE_EVT_CONN_ADV:
-            case ESP_BLE_EVT_CONN_DIR_ADV:
-            case ESP_BLE_EVT_DISC_ADV: {
-                adv_name = esp_ble_resolve_adv_data(param->scan_rst.ble_adv, ESP_BLE_AD_TYPE_NAME_CMPL, &adv_name_len);
-                if (adv_name == NULL) 
-                {
-                    //ESP_LOGE(BLE_TAG, "Could not resolve name");
-                    adv_name = (uint8_t*) "";
-                    adv_name_len = 0;
-                    return;
-                }
-                char bda_str[18];
-                bda2str(param->scan_rst.bda, bda_str, 18);
-                csha_bt_packet btpacket;
-                
-                sprintf(btpacket.mac, "%s", bda_str);
-                sprintf(btpacket.name, "%s",  adv_name);
-                btpacket.rssi = param->scan_rst.rssi;
-
-                int data_str_len = calc_len(now, &btpacket);
-                char data_str[data_str_len];
+            char bda_str[18];
+            bda2str(param->scan_rst.bda, bda_str, 18);
+            csha_bt_packet btpacket;
             
-                format_data(data_str, now, identifier_mac, &btpacket);
-                ESP_LOGI(WIFI_TAG, "%d : %s", data_str_len, data_str);
-                udp_send_str(data_str, MAX_SAFE_UDP_BLOCK_SIZE);
-                // ESP_LOGI(BLE_TAG, "Name: %s BDA : %s RSSI: %d Event: %d",
-                //     adv_name, 
-                //     bda_str,
-                //     param->scan_rst.rssi,
-                //     param->scan_rst.ble_evt_type
-                //     );
-                break;
-            }
-            default:
-                break;
-            }
-            vTaskDelay(10 / portTICK_PERIOD_MS);
+            sprintf(btpacket.mac, "%s", bda_str);
+            sprintf(btpacket.name, "%s",  adv_name);
+            btpacket.rssi = param->scan_rst.rssi;
+            int data_str_len = calc_len(now, &btpacket);
+            char data_str[data_str_len];
+        
+            format_data(data_str, now, identifier_mac, &btpacket);
+            ESP_LOGI(WIFI_TAG, "%d : %s", data_str_len, data_str);
+            udp_send_str(data_str, MAX_SAFE_UDP_BLOCK_SIZE);
+            // ESP_LOGI(BLE_TAG, "Name: %s BDA : %s RSSI: %d Event: %d",
+            //     adv_name, 
+            //     bda_str,
+            //     param->scan_rst.rssi,
+            //     param->scan_rst.ble_evt_type
+            //     );
             break;
+        }
         default:
-            ESP_LOGI(BLE_TAG, "Event: %d", event);
+            // ESP_LOGI(BLE_TAG, "BLE event : %d", param->scan_rst.ble_evt_type);
             break;
+        }
+        vTaskDelay(10 / portTICK_PERIOD_MS);
+        break;
+    default:
+        break;
     }
 }
-void ble_app_gap_start_up(esp_bd_addr_t rand_addr)
+void ble_app_gap_start_up(void)
 {
     esp_err_t err;
+
     get_wifi_mac_str(identifier_mac);
+
 	char *dev_name = "ESP_GAP_INQUIRY";
 	esp_bt_dev_set_device_name(dev_name);
-	
-    esp_ble_gap_set_scan_params(&ble_scan_params);
+
+    uint8_t mac[6];
+    esp_efuse_mac_get_custom(mac);
+    if (memcmp(blank_bda, mac, 2) == 0)
+        esp_efuse_mac_get_default(mac);
+ 
     
-    if ((err = esp_ble_gap_set_rand_addr(rand_addr)) != ESP_OK) 
+    if ((err = esp_base_mac_addr_set(mac))  != ESP_OK) 
     {
-        ESP_LOGE(BLE_TAG, "%s Could not set random address %s\n", __func__, esp_err_to_name(err));
+        ESP_LOGE(BLE_TAG, "%s Could not set mac address %s\n", __func__, esp_err_to_name(err));
         return;
     }
+    // else
+    // {
+    uint8_t bt_addr[6];
+    char bt_addr_str[18];
+    esp_read_mac(bt_addr, ESP_MAC_BT);
+    byte_mac_to_str(bt_addr_str, bt_addr);
+    ESP_LOGI(BLE_TAG, "bt address set: %s", bt_addr_str);
+    // }
 
     if ((err = esp_ble_gap_register_callback(ble_app_gap_cb)) != ESP_OK)
     {
         ESP_LOGE(BLE_TAG, "%s Gap callback register error %s\n", __func__, esp_err_to_name(err));
         return;
     }
+    get_wifi_mac_str(identifier_mac);
+
+    esp_ble_gap_set_scan_params(&ble_scan_params);
+
+    // get_wifi_mac_str(wifi_mac_str);
+    ESP_LOGI(WIFI_TAG," mac: %s",  identifier_mac);
+
     for (;;) 
     {
         vTaskDelay(10 / portTICK_PERIOD_MS);

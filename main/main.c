@@ -69,8 +69,6 @@ void app_main(void)
     }
 
 
-    get_wifi_mac_str(wifi_mac_str);
-    ESP_LOGI(WIFI_TAG," mac: %s",  wifi_mac_str);
 
     time_t now = 0;
 
