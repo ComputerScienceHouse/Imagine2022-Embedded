@@ -67,12 +67,6 @@ void app_main(void)
     get_wifi_mac_str();
     ESP_LOGI(WIFI_TAG,"ESP MAC Address: %s",  wifi_mac_str);
 
-    // time will only be accurate if SNTP sync was successful (requires mesh for now)
-    time_t now = 0;
-    time(&now);
-
-    ESP_LOGI(TIME_TAG, "now : %d", (int)now);
-
     ble_app_gap_start_up();
     ESP_LOGI("CSHacked", "Done!");
 }

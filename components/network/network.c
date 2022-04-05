@@ -16,6 +16,11 @@ char* get_wifi_mac_str()
 void time_sync_notification_cb(struct timeval* tv)
 {
     sntp_ready = true;
+    ESP_LOGI(TIME_TAG, "Time synced");
+    time_t now = 0;
+    time(&now);
+
+    ESP_LOGI(TIME_TAG, "now : %d", (int)now);
 }
 
 void init_sntp(void)
