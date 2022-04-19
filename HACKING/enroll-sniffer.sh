@@ -11,7 +11,7 @@ Options:
     -p|--password|--pass"
 }
 
-# https://gis.stackexchange.com/questions/11626/does-y-mean-latitude-and-x-mean-longitude-in-every-gis-software
+# https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
 
 # More safety, by turning some bugs into errors.
 # Without `errexit` you don’t need ! and can replace
