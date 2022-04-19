@@ -44,6 +44,16 @@ void v_heartbeat( void * pvParameters )
     {
         printf("[%d] Heartbeat!\n", i);
         i++;
+
+        if (wifi_ready && sntp_ready)
+        {
+            time_t now;
+            time(&now);
+            char data_str[100];//sizeof(now) + 17 + 3 + sizeof("heartbeat")];
+            format_heartbeat(data_str, now, wifi_mac_str);
+            ESP_LOGI(WIFI_TAG, "%s", data_str);
+            udp_send_str(data_str, MAX_SAFE_UDP_BLOCK_SIZE);
+        }
         vTaskDelay(5000 / portTICK_PERIOD_MS); 
     }
 }
@@ -110,7 +120,7 @@ void app_main(void)
     // must exist for the lifetime of the task, so in this case is declared static.  If it was just an
     // an automatic stack variable it might no longer exist, or at least have been corrupted, by the time
     // the new task attempts to access it.
-    xTaskCreate( v_heartbeat, "HEARTBEAT", configMINIMAL_STACK_SIZE, &ucParameterToPass, tskIDLE_PRIORITY, &xHandle );
+    xTaskCreate( v_heartbeat, "HEARTBEAT", 2048, &ucParameterToPass, tskIDLE_PRIORITY, &xHandle );
     configASSERT( xHandle );
 
     // Use the handle to delete the task.
