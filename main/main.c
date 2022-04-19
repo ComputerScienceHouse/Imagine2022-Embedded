@@ -26,6 +26,7 @@
 #include "udp.h"
 #include "mesh.h"
 #include "network.h"
+#include "config.h"
 
 const uint8_t custom_mac[] = {
     0xCA, 0xFE, 0x69, 0xC5, 0x11, CONFIG_DEVICE_NUM
