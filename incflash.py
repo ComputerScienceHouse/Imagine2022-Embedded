@@ -7,14 +7,23 @@ INCREMENT_AMOUNT = 2
 IMAGINE_DIR = os.getcwd()
 CONTAINER_DIR = "/ImagineRIT2022"
 CONTAINER_NAME = "imaginerit-embedded-dev"
+SERIAL_DEVICE = "/dev/ttyUSB0"
 
 ENV_LAUNCH_COMMAND = f"""
-podman run -dt --name={CONTAINER_NAME} -v "{IMAGINE_DIR}":{CONTAINER_DIR} --device=/dev/ttyUSB0:rwm --group-add keep-groups --annotation io.crun.keep_original_groups=1 --annotation run.oci.keep_original_groups=1 --security-opt label=disable {CONTAINER_NAME} """
+podman run -dt --name={CONTAINER_NAME} -v "{IMAGINE_DIR}":{CONTAINER_DIR} --device={SERIAL_DEVICE}:rwm --group-add keep-groups --annotation io.crun.keep_original_groups=1 --annotation run.oci.keep_original_groups=1 --security-opt label=disable {CONTAINER_NAME} """
 
 
 # LAUNCH_SCRIPT_LOC = "HACKING/launch-environment.sh"
 CONFIG_LOC = IMAGINE_DIR + "/main/config.h"
 VAR_NAME = "CONFIG_DEVICE_NUM"
+
+try:
+    subprocess.check_call(["ls", SERIAL_DEVICE])
+except subprocess.CalledProcessError as e:
+    print(f"Serial device {SERIAL_DEVICE} not found")
+    sys.exit(1)
+
+
 try:
     subprocess.check_output(ENV_LAUNCH_COMMAND, shell=True)
                                                                                                                                                                                                                                                          
@@ -56,5 +65,3 @@ finally:
         subprocess.check_output(f"podman kill {CONTAINER_NAME}", shell=True)
     finally:
         subprocess.check_output(f"podman rm {CONTAINER_NAME}", shell=True)
-    # pass
-
