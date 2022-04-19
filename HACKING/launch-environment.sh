@@ -1,5 +1,5 @@
 #!/bin/bash
-IMAGINE_DIR=/home/$USER/Documents/imagine2022-embedded
+IMAGINE_DIR=$(pwd)
 mkdir -p "$IMAGINE_DIR"
 podman run --rm -it                             \
     --name=imaginerit-embedded-dev              \
