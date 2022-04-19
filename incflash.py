@@ -3,6 +3,7 @@ import sys
 import os
 import re
 
+INCREMENT_AMOUNT = 2
 IMAGINE_DIR = os.getcwd()
 CONTAINER_DIR = "/ImagineRIT2022"
 CONTAINER_NAME = "imaginerit-embedded-dev"
@@ -37,7 +38,7 @@ try:
     =========================================
     """)
     
-    devNum += 1
+    devNum += INCREMENT_AMOUNT
     for i, line in enumerate(lines):
         if VAR_NAME in line:
             lines[i] = f"#define {VAR_NAME} 0x{'{:02x}'.format(devNum)}"
