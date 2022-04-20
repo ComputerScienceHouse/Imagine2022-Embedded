@@ -24,13 +24,42 @@ Then you can attach a shell to the pod
 podman exec -it imagine-embedded-dev bash
 `
 
-You can also use the included `launch-environment.sh` shell script.
+You can also use the included `launch-environment.sh` shell script. **BE SURE TO RUN IT FROM THE BASE REPOSITORY.**
+
+```
+./HACKING/launch-environment.sh
+```
 
 Once you're inside, use these commands to run the demo:
 
 ```
-cd /mnt/ImagineRIT2022/imagine2022-esp-idf
+cd /ImagineRIT2022
 idf.py -p /dev/ttyUSB0 flash monitor
 ```
 
 See [the esp-idf documentation](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html) for more information.
+
+## Enrolling/Unenrolling ESPs
+
+To enroll an ESP, you'll need its MAC address and its latitude/longitude, as well as the backend server token. Ask Willard or Joe.
+
+```
+./enroll-sniffer.sh -m '88:88:88:88:88:88' -x '-69.0' -y '69.0' -p 'what are you, a cop?'
+```
+
+To unenroll an ESP, just add the `-u` flag and omit the latitude/longitude.
+
+```
+./enroll-sniffer.sh -m '88:88:88:88:88:88' -u -p 'what are you, a cop?'
+```
+
+These options also work.
+
+```
+Options:
+    -u|--unenroll
+    -m|--mac
+    -y|--latitude|--lat
+    -x|--longitude|--lon
+    -p|--password|--pass
+```
