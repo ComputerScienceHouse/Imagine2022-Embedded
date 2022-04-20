@@ -13,7 +13,6 @@ ENV_LAUNCH_COMMAND = f"""
 podman run -dt --name={CONTAINER_NAME} -v "{IMAGINE_DIR}":{CONTAINER_DIR} --device={SERIAL_DEVICE}:rwm --group-add keep-groups --annotation io.crun.keep_original_groups=1 --annotation run.oci.keep_original_groups=1 --security-opt label=disable {CONTAINER_NAME} """
 
 
-# LAUNCH_SCRIPT_LOC = "HACKING/launch-environment.sh"
 CONFIG_LOC = IMAGINE_DIR + "/main/config.h"
 VAR_NAME = "CONFIG_DEVICE_NUM"
 
@@ -26,12 +25,11 @@ except subprocess.CalledProcessError as e:
 
 try:
     subprocess.check_output(ENV_LAUNCH_COMMAND, shell=True)
-                                                                                                                                                                                                                                                         
+
     with open(CONFIG_LOC, "r") as file:
         filestr = file.read()
         
     lines = filestr.split("\n")
-    
     
     devNum = int(re.search(f"{VAR_NAME} 0x..", filestr).group()[-2:], 16)
     
@@ -42,9 +40,9 @@ try:
         sys.exit(1)
     
     print(f"""
-    =========================================
-    #{devNum} SAFE TO REMOVE
-    =========================================
+    ===============================
+    Sniffer 0x{'{:02x}'.format(devNum)} SAFE TO DISCONNECT
+    ===============================
     """)
     
     devNum += INCREMENT_AMOUNT

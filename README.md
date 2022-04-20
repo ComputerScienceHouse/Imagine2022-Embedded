@@ -13,7 +13,7 @@ Demo of Classic Bluetooth Device and Service Discovery. Performs inquiry to sear
 
 ## How to use
 
-Install script automatically flashes and device and increments device number. Must be run in project directory
+Install script automatically flashes and device and increments device number. Must be run in project directory (outside container)
 ```
 python3 incflash.py
 ```
