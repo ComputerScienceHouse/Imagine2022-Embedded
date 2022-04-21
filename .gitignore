@@ -4,7 +4,6 @@ sdkconfig
 *.swp
 CMakeFiles/
 CMakeCache.txt
-main/config.h
 
 # HACKING changes too damn much
 HACKING/

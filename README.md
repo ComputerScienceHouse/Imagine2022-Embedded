@@ -13,12 +13,11 @@ Demo of Classic Bluetooth Device and Service Discovery. Performs inquiry to sear
 
 ## How to use
 
-Add a unique device number with
+Install script automatically flashes and device and increments device number. Must be run in project directory (outside container)
 ```
-idf.py menuconfig
+python3 incflash.py
 ```
-Navigate to section labeled Main and set a UNIQUE device number
-Flash code onto ESP as outlined in HACKING/README.md
+
 
 ### Hardware Required
 
