@@ -37,6 +37,28 @@ char wifi_mac_str[18] = {};
 bool wifi_ready = false;
 bool sntp_ready = false;
 
+void v_heartbeat( void * pvParameters )
+{
+    int i = 0;
+    for( ;; )
+    {
+        printf("[%d] Heartbeat!\n", i);
+        i++;
+
+        if (wifi_ready && sntp_ready)
+        {
+            time_t now;
+            time(&now);
+            char data_str[100];//sizeof(now) + 17 + 3 + sizeof("heartbeat")];
+            format_heartbeat(data_str, now, wifi_mac_str);
+            ESP_LOGI(WIFI_TAG, "%s", data_str);
+            udp_send_str(data_str, MAX_SAFE_UDP_BLOCK_SIZE);
+        }
+        vTaskDelay(5000 / portTICK_PERIOD_MS); 
+    }
+}
+
+
 void app_main(void)
 {
     /* Initialize NVS — it is used to store PHY calibration data */
@@ -89,6 +111,23 @@ void app_main(void)
     
     get_wifi_mac_str();
     ESP_LOGI(WIFI_TAG,"ESP MAC Address: %s",  wifi_mac_str);
+
+
+    static uint8_t ucParameterToPass;
+    TaskHandle_t xHandle = NULL;
+
+    // Create the task, storing the handle.  Note that the passed parameter ucParameterToPass
+    // must exist for the lifetime of the task, so in this case is declared static.  If it was just an
+    // an automatic stack variable it might no longer exist, or at least have been corrupted, by the time
+    // the new task attempts to access it.
+    xTaskCreate( v_heartbeat, "HEARTBEAT", 2048, &ucParameterToPass, tskIDLE_PRIORITY, &xHandle );
+    configASSERT( xHandle );
+
+    // Use the handle to delete the task.
+    //if( xHandle != NULL )
+    //{
+    //   vTaskDelete( xHandle );
+    //}
 
     ble_app_gap_start_up(tag_mac_template);
     ESP_LOGI("CSHacked", "Done!");

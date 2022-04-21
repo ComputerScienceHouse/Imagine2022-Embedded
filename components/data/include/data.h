@@ -30,6 +30,6 @@ int calc_len(time_t timestamp, csha_bt_packet* frame);
 */
 char* format_data(char* str, time_t timestamp, char* sourcemac, csha_bt_packet* frame);
 
-
+char* format_heartbeat(char* str, time_t timestamp, char* sourcemac);
 
 #endif

@@ -14,6 +14,7 @@ int calc_len(time_t timestamp, csha_bt_packet* frame)
             // number of separator characters + characters for mac + characters for mac + 
             6 + 17 + 17;
 }
+
 char* format_data(char* str, time_t timestamp, char* sourcemac, csha_bt_packet* frame)
 {
     sprintf(str, "%s%s%d%s%s%s%d%s%s",
@@ -23,5 +24,13 @@ char* format_data(char* str, time_t timestamp, char* sourcemac, csha_bt_packet* 
             frame->mac,SEPARATOR, 
             frame->rssi,SEPARATOR,SEPARATOR
             );
+    return str;
+}
+
+char* format_heartbeat(char* str, time_t timestamp, char* sourcemac)
+{
+    snprintf(str,100, // sizeof(timestamp) + 17 + 3 + sizeof("heartbeat"),
+            "heartbeat%s%s%s%ld%s%s",
+            SEPARATOR, sourcemac, SEPARATOR, timestamp, SEPARATOR, SEPARATOR);
     return str;
 }
