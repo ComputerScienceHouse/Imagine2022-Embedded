@@ -27,9 +27,11 @@ char* format_data(char* str, time_t timestamp, char* sourcemac, csha_bt_packet* 
     return str;
 }
 
-char* format_heartbeat(char* str, time_t timestamp, char* sourcemac)
+char* format_heartbeat(char* str, size_t packet_len, time_t timestamp, char* sourcemac)
 {
-    snprintf(str,100, // sizeof(timestamp) + 17 + 3 + sizeof("heartbeat"),
+    //size_t packet_len = sizeof("heartbeat") + sizeof(timestamp) + sizeof(sourcemac) + 4;
+    // fuck it's still too short.
+    snprintf(str, packet_len,
             "heartbeat%s%s%s%ld%s%s",
             SEPARATOR, sourcemac, SEPARATOR, timestamp, SEPARATOR, SEPARATOR);
     return str;

@@ -38,27 +38,23 @@ char wifi_mac_str[18] = {};
 bool wifi_ready = false;
 bool sntp_ready = false;
 
-void v_heartbeat( void * pvParameters )
+void v_heartbeat(void * pvParameters)
 {
-    int i = 0;
-    for( ;; )
+    for(;;)
     {
-        printf("[%d] Heartbeat!\n", i);
-        i++;
-
         if (wifi_ready && sntp_ready)
         {
             time_t now;
             time(&now);
-            char data_str[100];//sizeof(now) + 17 + 3 + sizeof("heartbeat")];
-            format_heartbeat(data_str, now, wifi_mac_str);
+            //size_t packet_len = strlen("heartbeat") + sizeof(now) + strlen(wifi_mac_str) + 4; // Fuck it, just make the packet length 100.
+            char data_str[100]; // 17 is the mac len, 4 is the separators, // 100]; //TODO: Calculate length lmao
+            format_heartbeat(data_str, 100, now, wifi_mac_str);
             ESP_LOGI(WIFI_TAG, "%s", data_str);
             udp_send_str(data_str, MAX_SAFE_UDP_BLOCK_SIZE);
         }
-        vTaskDelay(5000 / portTICK_PERIOD_MS); 
+        vTaskDelay((CONFIG_HEARTBEAT_INTERVAL * 1000) / portTICK_PERIOD_MS); 
     }
 }
-
 
 void app_main(void)
 {

@@ -1,0 +1,8 @@
+menu "Main"
+    config HEARTBEAT_INTERVAL
+        int "heartbeat interval (seconds)"
+        range 0 300
+        default 15
+        help
+            Time interval (in seconds) between sending heartbeat messages to the ingestion server
+endmenu
