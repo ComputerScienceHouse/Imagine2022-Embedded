@@ -1,6 +1,8 @@
 # CSHacked—Embedded Team
 
-This repo contains all source code and information pertaining to the configuration and operation of the embedded portion of CSHacked. It's basically nothing right now. It just scans the bluetooth airwaves and lists them onscreen. That somehow needs to be put into a database...
+[![forthebadge](https://forthebadge.com/images/badges/powered-by-energy-drinks.svg)](https://forthebadge.com) [![forthebadge](https://forthebadge.com/images/badges/made-with-c.svg)](https://forthebadge.com) [![forthebadge](https://forthebadge.com/images/badges/makes-people-smile.svg)](https://forthebadge.com)
+
+This repo contains all source code and information pertaining to the configuration and operation of the embedded portion of CSHacked. It boots up, tries to create a mesh network with nearby ESPs, then scans for [tags](https://github.com/ComputerScienceHouse/Imagine2022-Tags). When it finds one, it uploads signal and timestamp data to the [ingestion](https://github.com/ComputerScienceHouse/Imagine2022-Ingestion) server for processing.
 
 Below, you'll find some (slightly modified) documentation from the repo this project was pulled from.
 
